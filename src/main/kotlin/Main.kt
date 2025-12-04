@@ -1,27 +1,34 @@
 package org.cesar
 
 import java.io.File
+import kotlin.math.absoluteValue
+
+var password = 0
+var currentDial = 50
 
 fun main() {
-    var password = 0
-    var currentDial = 50
-
     val inputURL = {}.javaClass.getResource("/input.txt")
     val inputFile = File(inputURL.toURI())
 
     inputFile.bufferedReader().use { reader ->
         reader.forEachLine { line ->
+            println("===============")
             val (direction, amount) = parseLine(line)
 
-            currentDial = rotateDial(direction, amount, currentDial)
+            println("Initial turn amount: " + amount)
 
-            if (currentDial % 100 == 0) {
-                password++
-            }
+            val fullRotationsCount = amount/100
+            password += fullRotationsCount
+
+            val newAmount = amount%100
+            currentDial %= 100
+
+            currentDial = rotateDial(currentDial, direction, newAmount)
         }
     }
 
-    println(password)
+    println("===============")
+    println("Final Password:" + password)
 }
 
 private fun parseLine(line: String): Pair<Char, Int> {
@@ -30,14 +37,30 @@ private fun parseLine(line: String): Pair<Char, Int> {
     return direction to amount
 }
 
-private fun rotateDial(direction: Char, amount: Int, current: Int): Int {
-    val newCurrent: Int
+private fun rotateDial(currentDial:Int, direction: Char, amount: Int): Int {
+    val newDial: Int
 
     if (direction == 'L') {
-        newCurrent = current - amount
+        newDial = currentDial - amount
     } else {
-        newCurrent = current + amount
+        newDial = currentDial + amount
     }
 
-    return newCurrent
+    countRotations(newDial, currentDial)
+    println(currentDial.toString() + " -> " + newDial.toString())
+    println("Password: " + password)
+
+    return newDial
+}
+
+private fun countRotations(newDial: Int, oldDial: Int) {
+    password += (newDial/100).absoluteValue
+
+    if (newDial == 0) {
+        password++
+    } else if (newDial > 0 && oldDial < 0) {
+        password++
+    } else if (newDial < 0 && oldDial > 0) {
+        password++
+    }
 }

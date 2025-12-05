@@ -7,8 +7,8 @@ var answer:Long = 0
 
 fun main() {
     val time = measureNanoTime {
-        val inputFile  = readFile("/day02/input.txt")
-        val ranges = inputFile.readText().split(',')
+        val inputFile = readFile("/day02/input.txt")
+        val ranges = inputFile.split(',')
 
         for (range in ranges) {
             val (lowerBound, upperBound) = range.split('-', limit = 2)
@@ -20,9 +20,11 @@ fun main() {
     println("Answer: $answer")
 }
 
-private fun readFile(path: String): File {
+private fun readFile(path: String): String {
     val inputURL = {}.javaClass.getResource(path)
-    return File(inputURL.toURI())
+    val inputFile = File(inputURL.toURI())
+
+    return inputFile.readText()
 }
 
 private fun findInvalidIDsInRange (lowerBound: Long, upperBound: Long) {
@@ -34,33 +36,29 @@ private fun findInvalidIDsInRange (lowerBound: Long, upperBound: Long) {
 }
 
 private fun Long.isInvalidId(): Boolean {
-    val digitCount = this.length()
+    val longStr = this.toString()
+    val digitCount = longStr.length
 
-    if (digitCount == 1) {
-        return false
+    if (digitCount == 1) return false
 
-    } else {
-        for (i in 1 .. digitCount/2) {
-            val longStr = this.toString()
-            val firstSequence = longStr.take(i)
-            var j = i
+    for (i in 1 .. digitCount/2) {
+        val firstSequence = longStr.take(i)
+        var j = i
 
-            while (i+j <= digitCount) {
-                val nextSequence = longStr.substring(j, j+i)
+        while (i+j <= digitCount) {
+            val nextSequence = longStr.substring(j, j+i)
 
-                if (!firstSequence.equals(nextSequence)) {
-                    break
-                } else if (j+i >= digitCount) {
-                    return true
-                }
-
-                j += i
+            if (!firstSequence.equals(nextSequence)) {
+                break
             }
+
+            j += i
+        }
+
+        if (j+i == digitCount) {
+            return true
         }
     }
 
     return false
 }
-
-fun Long.length(): Int =
-    this.toString().length
